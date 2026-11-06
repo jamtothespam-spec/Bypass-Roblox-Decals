@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnnaRoblox's Bypass Creator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #1a1a1a; color: #e5e5e5; }
+        .canvas-container { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.5); border-radius: 0.75rem; overflow: hidden; }
+        .bg-transparent-grid {
+            background-image: linear-gradient(45deg, #2a2a2a 25%, transparent 25%),
+                              linear-gradient(-45deg, #2a2a2a 25%, transparent 25%),
+                              linear-gradient(45deg, transparent 75%, #2a2a2a 75%),
+                              linear-gradient(-45deg, transparent 75%, #2a2a2a 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            background-color: #1a1a1a;
+        }
+        .bg-preset-black { background-color: #000000; background-image: none; }
+        .bg-preset-white { background-color: #ffffff; background-image: none; }
+        .bg-preset-grey { background-color: rgb(128,128,128); background-image: none; }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%;
+            background: #60a5fa; cursor: pointer; border: 2px solid #1e40af;
+        }
+        .excl-edit-input {
+            background-color: rgb(30 58 138);
+            color: rgb(191 219 254);
+            border: 1px solid rgb(96 165 250);
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 0.25rem;
+            width: 88px;
+            text-align: center;
+            outline: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center py-8 px-4 font-sans">
+    <div class="w-full max-w-4xl space-y-8">
+        <div class="text-center space-y-2">
+            <h1 class="text-3xl font-bold text-blue-400">AnnaRoblox's Bypass Creator</h1>
+            <p class="text-gray-400 text-sm"><b>Multi-step automated bypass with Dynamic Exclusion</b></p>
+            <p class="text-gray-400 text-sm">works with decals and t-shirts</p>
+             <p class="text-gray-400 text-sm">Thanks to <b><a href="https://discord.gg/GrySSdCmAR">Joshclark756</a></b> for help with the method</p>
+        </div>
+        <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-xl space-y-6">
+            <div id="dropZoneMain" class="flex flex-col items-center justify-center border-2 border-dashed border-gray-600 rounded-lg p-6 hover:border-blue-400 transition-colors cursor-pointer group">
+                <input type="file" id="imageInput" accept="image/*" class="hidden">
+                <div class="text-center pointer-events-none group-hover:scale-105 transition-transform duration-200">
+                    <svg class="h-10 w-10 mx-auto text-gray-400 mb-2 group-hover:text-blue-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <p class="text-sm text-gray-300">Main image — click / drag / paste</p>
+                </div>
+            </div>
+            <div class="bg-gray-900/60 p-5 rounded-lg border border-gray-600 space-y-5">
+                <h3 class="font-semibold text-amber-300 text-lg">Output Size</h3>
+                <label class="flex items-center gap-3 text-sm cursor-pointer">
+                    <input type="checkbox" id="customSizeToggle" class="w-5 h-5 accent-amber-400">
+                    <span>Set custom canvas size (resizes main image to exact W×H)</span>
+                </label>
+                <div id="customSizeOptions" class="hidden grid grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="block text-xs text-gray-400">Width (px)</label>
+                        <input type="number" id="customWidth" value="300" min="0" max="4096" step="1"
+                               class="w-full bg-gray-800 border border-gray-700 focus:border-amber-400 rounded-lg px-4 py-2.5 text-white font-mono">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-xs text-gray-400">Height (px)</label>
+                        <input type="number" id="customHeight" value="300" min="0" max="4096" step="1"
+                               class="w-full bg-gray-800 border border-gray-700 focus:border-amber-400 rounded-lg px-4 py-2.5 text-white font-mono">
+                    </div>
+                </div>
+                <p class="text-[10px] text-gray-500 italic">Common Roblox sizes: 512×512, 1024×1024, 2048×2048</p>
+            </div>
+            <div class="bg-gray-900/60 p-5 rounded-lg border border-gray-600 space-y-5">
+                <h3 class="font-semibold text-purple-300 text-lg">Bait Layer</h3>
+                <div id="dropZoneBait" class="flex flex-col items-center justify-center border-2 border-dashed border-gray-600 rounded-lg p-5 hover:border-purple-400 transition-colors cursor-pointer group">
+                    <input type="file" id="baitInput" accept="image/*" class="hidden">
+                    <div class="text-center pointer-events-none group-hover:scale-105 transition-transform duration-200">
+                        <svg class="h-8 w-8 mx-auto text-gray-400 mb-2 group-hover:text-purple-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        <p class="text-sm text-gray-300">Bait image (optional)</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-6 items-center justify-center">
+                    <div class="space-x-4">
+                        <label><input type="radio" name="baitMode" value="none" checked> None</label>
+                        <label><input type="radio" name="baitMode" value="normal"> Normal (bottom)</label>
+                        <label><input type="radio" name="baitMode" value="new"> top bait (top masked)</label>
+                    </div>
+                    <div id="newBaitOptions" class="hidden space-x-4 items-center">
+                        <span class="text-sm text-gray-300">BG:</span>
+                        <label><input type="radio" name="newBaitBg" value="black" checked> Black</label>
+                        <label><input type="radio" name="newBaitBg" value="white"> White</label>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 pt-3 border-t border-gray-700">
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span>Bait Opacity</span>
+                            <span id="baitOpacityVal">100%</span>
+                        </div>
+                        <input type="range" id="baitOpacity" min="0" max="100" value="100" class="w-full">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-2 text-sm">
+                            <input type="checkbox" id="clearBaitToggle">
+                            Clear Bait (grayscale + clear on color)
+                        </label>
+                        <div id="clearBaitOptions" class="hidden flex gap-4 items-center text-sm">
+                            <span>Clear on:</span>
+                            <label><input type="radio" name="clearBaitColor" value="black" checked> Black</label>
+                            <label><input type="radio" name="clearBaitColor" value="white"> White</label>
+                        </div>
+                    </div>
+                    <div class="space-y-2 col-span-full">
+                        <label class="flex items-center gap-2 text-sm">
+                            <input type="checkbox" id="createBaitToggle">
+                            Create Bait (make compatible - contrast/edge enhancement)
+                        </label>
+                        <div id="createBaitNote" class="hidden text-xs text-gray-400 italic">
+                            Applies contrast boost and simple edge detection before using as bait
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-900/60 p-5 rounded-lg border border-gray-600 space-y-5">
+                <h3 class="font-semibold text-emerald-300 text-lg">Tag Layer</h3>
+                <div id="dropZoneTag" class="flex flex-col items-center justify-center border-2 border-dashed border-gray-600 rounded-lg p-5 hover:border-emerald-400 transition-colors cursor-pointer group">
+                    <input type="file" id="tagInput" accept="image/*" class="hidden">
+                    <div class="text-center pointer-events-none group-hover:scale-105 transition-transform duration-200">
+                        <svg class="h-8 w-8 mx-auto text-gray-400 mb-2 group-hover:text-emerald-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        <p class="text-sm text-gray-300">Tag image (optional) — placed on very top</p>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span>Tag Size (% of canvas width)</span>
+                        <span id="tagSizeVal">25%</span>
+                    </div>
+                    <input type="range" id="tagSize" min="5" max="100" value="25" class="w-full">
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span>Tag Opacity</span>
+                        <span id="tagOpacityVal">100%</span>
+                    </div>
+                    <input type="range" id="tagOpacity" min="0" max="100" value="100" class="w-full">
+                </div>
+                <div class="space-y-3">
+                    <span class="text-sm text-gray-300 block">Position Preset</span>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 p-3 rounded-lg border border-transparent has-[:checked]:border-emerald-500 cursor-pointer">
+                            <input type="radio" name="tagPosition" value="top-left" checked class="accent-emerald-400">
+                            <span class="text-sm">Top Left</span>
+                        </label>
+                        <label class="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 p-3 rounded-lg border border-transparent has-[:checked]:border-emerald-500 cursor-pointer">
+                            <input type="radio" name="tagPosition" value="top-right" class="accent-emerald-400">
+                            <span class="text-sm">Top Right</span>
+                        </label>
+                        <label class="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 p-3 rounded-lg border border-transparent has-[:checked]:border-emerald-500 cursor-pointer">
+                            <input type="radio" name="tagPosition" value="bottom-left" class="accent-emerald-400">
+                            <span class="text-sm">Bottom Left</span>
+                        </label>
+                        <label class="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 p-3 rounded-lg border border-transparent has-[:checked]:border-emerald-500 cursor-pointer">
+                            <input type="radio" name="tagPosition" value="bottom-right" class="accent-emerald-400">
+                            <span class="text-sm">Bottom Right</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="space-y-2 pt-3 border-t border-gray-700">
+                    <label class="flex items-center gap-2 text-sm cursor-pointer">
+                        <input type="checkbox" id="customPosToggle" class="accent-emerald-400">
+                        Custom Position (overrides preset)
+                    </label>
+                    <div id="customPosOptions" class="hidden grid grid-cols-2 gap-5">
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-sm">
+                                <span>X Offset</span>
+                                <span id="tagXVal">0%</span>
+                            </div>
+                            <input type="range" id="tagX" min="0" max="100" value="0" class="w-full">
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-sm">
+                                <span>Y Offset</span>
+                                <span id="tagYVal">0%</span>
+                            </div>
+                            <input type="range" id="tagY" min="0" max="100" value="0" class="w-full">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-900/40 p-4 rounded-lg border border-gray-700/50 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-semibold text-blue-300">Exclusion Value</h3>
+                    <span id="exclValDisplay"
+                          class="text-xs bg-blue-900 text-blue-200 px-2 py-1 rounded cursor-pointer hover:bg-blue-800 active:bg-blue-700 transition-colors"
+                          title="Click to manually enter any value (0-255)">112, 112, 112</span>
+                </div>
+                <input type="range" id="exclSlider" min="0" max="255" value="112" class="w-full">
+
+                <div class="pt-3 border-t border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-300">Exclusion Mode</span>
+                        <div class="flex gap-6 text-sm">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="exclMode" value="black" checked class="accent-blue-500">
+                                <span>On Black</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="exclMode" value="white" class="accent-blue-500">
+                                <span>On White</span>
+                            </label>
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-gray-500 mt-1 italic">On Black = visible on black On White = visible on white</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-3">
+                    <div class="flex justify-between"><h3 class="font-semibold text-white">Top Layer</h3><span id="topVal">20%</span></div>
+                    <input type="range" id="topOpacity" min="0" max="100" value="20" class="w-full">
+                </div>
+                <div class="space-y-3">
+                    <div class="flex justify-between"><h3 class="font-semibold text-white">Bottom Layer</h3><span id="btmVal">100%</span></div>
+                    <input type="range" id="btmOpacity" min="0" max="100" value="100" class="w-full">
+                </div>
+            </div>
+            <div id="status" class="hidden text-center text-yellow-400 animate-pulse">Processing...</div>
+        </div>
+        <div class="space-y-6">
+            <div id="fullPreviewBlock" class="flex justify-center bg-gray-900 p-4 rounded-xl border border-gray-800 overflow-auto">
+                <div id="canvasWrapper" class="canvas-container bg-transparent-grid">
+                    <canvas id="mainCanvas" class="max-w-full h-auto block"></canvas>
+                </div>
+            </div>
+            <div id="decalPreviewBlock" class="hidden flex justify-center bg-gray-900 p-4 rounded-xl border border-gray-800 overflow-auto">
+                <div class="canvas-container bg-transparent-grid relative">
+                    <canvas id="decalCanvas" width="300" height="300" class="block"></canvas>
+                    <div class="absolute top-2 right-2 bg-amber-500 text-[10px] font-mono font-bold text-black px-2 py-0.5 rounded shadow">300×300</div>
+                </div>
+            </div>
+            <div class="flex justify-center">
+                <label class="flex items-center gap-3 bg-gray-800 hover:bg-gray-700 px-6 py-3 rounded-2xl border border-gray-700 cursor-pointer transition-all">
+                    <input type="checkbox" id="decalPreviewToggle" class="w-5 h-5 accent-blue-500">
+                    <div>
+                        <span class="text-white text-sm font-medium">Preview at Roblox Decal Size</span>
+                        <span class="block text-xs text-gray-400">see resize quality loss</span>
+                    </div>
+                </label>
+            </div>
+            <div class="flex flex-col items-center space-y-3">
+                <span class="text-sm text-gray-400">Preview Background</span>
+                <div class="flex space-x-2 bg-gray-800 p-1 rounded-lg border border-gray-700">
+                    <button onclick="setBg('transparent-grid')" data-preset="transparent-grid" class="px-4 py-2 rounded-md bg-gray-700 text-white">Transparent</button>
+                    <button onclick="setBg('preset-black')" data-preset="preset-black" class="px-4 py-2 rounded-md text-gray-300">Black</button>
+                    <button onclick="setBg('preset-white')" data-preset="preset-white" class="px-4 py-2 rounded-md text-gray-300">White</button>
+                    <button onclick="setBg('preset-grey')" data-preset="preset-grey" class="px-4 py-2 rounded-md text-gray-300">Grey</button>
+                </div>
+            </div>
+            <div class="text-center">
+                <button id="downloadBtn" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg disabled:opacity-50" disabled>Download</button>
+            </div>
+        </div>
+    </div>
+    <script>
+    // ─── Core functions ───
+    function minimumAlpha(Cc, Cb) {
+        if (Cc === Cb) return 0;
+        if (Cc > Cb) return Math.floor((255 * (Cc - Cb) - 1) / (255 - Cb) + 1);
+        return Math.floor(255 * (Cb - Cc - 1) / Cb + 1);
+    }
+    function adjustForAlpha(Af, Cc, Cb, Cm) {
+        if (Af === 0) return Cm;
+        let T = 255 * (Cc - Cb) - Af * (Cm - Cb);
+        if (T <= -255) Cm += Math.floor((T + 255) / Af - 1);
+        else if (T > 0) Cm += Math.floor((T - 1) / Af + 1);
+        return Math.min(255, Math.max(0, Cm));
+    }
+    function applyClearColor(width, height, srcData, clearR, clearG, clearB) {
+        const output = new Uint8ClampedArray(srcData.length);
+        const sR = 255 * clearR, sG = 255 * clearG, sB = 255 * clearB;
+        for (let i = 0; i < srcData.length; i += 4) {
+            const R = srcData[i], G = srcData[i+1], B = srcData[i+2], A = srcData[i+3];
+            if (A === 0) { output.set([R,G,B,0], i); continue; }
+            let Rc = A === 255 ? R : Math.floor((sR + A * (R - clearR)) / 255);
+            let Gc = A === 255 ? G : Math.floor((sG + A * (G - clearG)) / 255);
+            let Bc = A === 255 ? B : Math.floor((sB + A * (B - clearB)) / 255);
+            let Ac = Math.max(minimumAlpha(Rc, clearR), minimumAlpha(Gc, clearG), minimumAlpha(Bc, clearB));
+            if (Ac === 0) { output.set([R,G,B,0], i); }
+            else {
+                output[i] = adjustForAlpha(Ac, Rc, clearR, R);
+                output[i+1] = adjustForAlpha(Ac, Gc, clearG, G);
+                output[i+2] = adjustForAlpha(Ac, Bc, clearB, B);
+                output[i+3] = Ac;
+            }
+        }
+        return output;
+    }
+    function applyBlend(srcData, blendR, blendG, blendB, mode) {
+        const output = new Uint8ClampedArray(srcData.length);
+        for (let i = 0; i < srcData.length; i += 4) {
+            const srcR = srcData[i], srcG = srcData[i+1], srcB = srcData[i+2], srcA = srcData[i+3];
+            let dstR, dstG, dstB;
+            switch (mode) {
+                case 'exclusion':
+                    dstR = srcR + blendR - (2 * srcR * blendR) / 255;
+                    dstG = srcG + blendG - (2 * srcG * blendG) / 255;
+                    dstB = srcB + blendB - (2 * srcB * blendB) / 255;
+                    break;
+                case 'average':
+                    dstR = (srcR + blendR) / 2;
+                    dstG = (srcG + blendG) / 2;
+                    dstB = (srcB + blendB) / 2;
+                    break;
+                case 'multiply':
+                    dstR = (srcR * blendR) / 255;
+                    dstG = (srcG * blendG) / 255;
+                    dstB = (srcB * blendB) / 255;
+                    break;
+                case 'negation':
+                    dstR = 255 - Math.abs(255 - srcR - blendR);
+                    dstG = 255 - Math.abs(255 - srcG - blendG);
+                    dstB = 255 - Math.abs(255 - srcB - blendB);
+                    break;
+                default:
+                    dstR = srcR; dstG = srcG; dstB = srcB;
+            }
+            output[i] = Math.min(255, Math.max(0, dstR));
+            output[i+1] = Math.min(255, Math.max(0, dstG));
+            output[i+2] = Math.min(255, Math.max(0, dstB));
+            output[i+3] = srcA;
+        }
+        return output;
+    }
+    function createMaskedBait(finalData, baitData, width, height, bgColor) {
+        const output = new Uint8ClampedArray(finalData.length);
+        const bg = bgColor === 'white' ? 255 : 0;
+        for (let i = 0; i < finalData.length; i += 4) {
+            const fA = finalData[i+3] / 255;
+            const compR = Math.round(finalData[i] * fA + bg * (1 - fA));
+            const compG = Math.round(finalData[i+1] * fA + bg * (1 - fA));
+            const compB = Math.round(finalData[i+2] * fA + bg * (1 - fA));
+            if (baitData[i+3] > 0) {
+                output.set([compR, compG, compB, 255], i);
+            } else {
+                output.set([0,0,0,0], i);
+            }
+        }
+        return output;
+    }
+    function processBaitImage(rawData, w, h, clearEnabled, clearColor, createEnabled) {
+        let data = new Uint8ClampedArray(rawData);
+        // Store original alpha to preserve transparency
+        const originalAlpha = new Uint8ClampedArray(w * h);
+        for (let i = 0; i < data.length; i += 4) {
+            originalAlpha[i / 4] = data[i + 3];
+        }
+
+        if (createEnabled) {
+            for (let i = 0; i < data.length; i += 4) {
+                let gray = Math.round(0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2]);
+                let contrast = 2.2;
+                let brightness = -40;
+                let adjusted = Math.round((gray - 128) * contrast + 128 + brightness);
+                adjusted = Math.max(0, Math.min(255, adjusted));
+                data[i] = data[i+1] = data[i+2] = adjusted;
+            }
+            const temp = new Uint8ClampedArray(data.length);
+            temp.set(data);
+            for (let y = 1; y < h-1; y++) {
+                for (let x = 1; x < w-1; x++) {
+                    const i = (y * w + x) * 4;
+                    const gx = -temp[(y-1)*w*4 + (x-1)*4] -2*temp[(y-1)*w*4 + x*4] -temp[(y-1)*w*4 + (x+1)*4] +
+                                temp[(y+1)*w*4 + (x-1)*4] +2*temp[(y+1)*w*4 + x*4] +temp[(y+1)*w*4 + (x+1)*4];
+                    const gy = -temp[(y-1)*w*4 + (x-1)*4] +temp[(y-1)*w*4 + (x+1)*4] +
+                               -2*temp[y*w*4 + (x-1)*4] +2*temp[y*w*4 + (x+1)*4] +
+                               -temp[(y+1)*w*4 + (x-1)*4] +temp[(y+1)*w*4 + (x+1)*4];
+                    const edge = Math.sqrt(gx*gx + gy*gy);
+                    const val = Math.max(0, Math.min(255, 255 - edge * 0.8));
+                    data[i] = data[i+1] = data[i+2] = val;
+                }
+            }
+        }
+
+        if (clearEnabled) {
+            const target = clearColor === 'white' ? 255 : 0;
+            for (let i = 0; i < data.length; i += 4) {
+                const gray = Math.round(0.299*data[i] + 0.587*data[i+1] + 0.114*data[i+2]);
+                const dist = Math.abs(gray - target);
+                // Combine distance-based alpha with the original image alpha
+                const calculatedAlpha = Math.max(0, 255 - dist * 2.5);
+                const finalAlpha = Math.min(originalAlpha[i/4], calculatedAlpha);
+                
+                data[i] = data[i+1] = data[i+2] = gray;
+                data[i+3] = finalAlpha;
+            }
+        } else {
+            // If not clearing, simply re-apply the original alpha to the processed RGB
+            for (let i = 0; i < data.length; i += 4) {
+                data[i + 3] = originalAlpha[i / 4];
+            }
+        }
+        return data;
+    }
+    // ─── State ───
+    let originalImageData = null;
+    let topLayerProcessed = null;
+    let btmLayerProcessed = null;
+    let baitOriginalImage = null;
+    let baitImageData = null;
+    let tagOriginalImage = null;
+    let mainSourceImage = null;
+    let currentWidth = 0;
+    let currentHeight = 0;
+    let decalPreviewEnabled = false;
+    const canvas = document.getElementById('mainCanvas');
+    const ctx = canvas.getContext('2d');
+    const statusEl = document.getElementById('status');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const decalCanvas = document.getElementById('decalCanvas');
+    const decalCtx = decalCanvas.getContext('2d');
+
+    // ─── Custom Size Helper ───
+    function applyMainImageSize() {
+        if (!mainSourceImage) return;
+        const toggle = document.getElementById('customSizeToggle').checked;
+        let w, h;
+        if (toggle) {
+            const cw = parseInt(document.getElementById('customWidth').value) || mainSourceImage.width;
+            const ch = parseInt(document.getElementById('customHeight').value) || mainSourceImage.height;
+            w = Math.max(64, cw);
+            h = Math.max(64, ch);
+        } else {
+            w = mainSourceImage.width;
+            h = mainSourceImage.height;
+        }
+        w = Math.max(64, Math.min(4096, w));
+        h = Math.max(64, Math.min(4096, h));
+        currentWidth = canvas.width = w;
+        currentHeight = canvas.height = h;
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.clearRect(0, 0, currentWidth, currentHeight);
+        ctx.drawImage(mainSourceImage, 0, 0, w, h);
+        originalImageData = ctx.getImageData(0, 0, currentWidth, currentHeight);
+        if (baitOriginalImage) updateBaitData();
+        processPipeline();
+        downloadBtn.disabled = false;
+    }
+
+    // ─── File handling ───
+    function handleFile(file, mode = 'main') {
+        if (!file || !file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            const img = new Image();
+            img.onload = () => {
+                if (mode === 'main') {
+                    mainSourceImage = img;
+                    applyMainImageSize();
+                } else if (mode === 'bait') {
+                    baitOriginalImage = img;
+                    updateBaitData();
+                    renderComposite();
+                } else if (mode === 'tag') {
+                    tagOriginalImage = img;
+                    renderComposite();
+                }
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+    function updateBaitData() {
+        if (!baitOriginalImage || currentWidth <= 0 || currentHeight <= 0) {
+            baitImageData = null;
+            renderComposite();
+            return;
+        }
+        const temp = document.createElement('canvas');
+        temp.width = currentWidth;
+        temp.height = currentHeight;
+        const tctx = temp.getContext('2d');
+        tctx.drawImage(baitOriginalImage, 0, 0, currentWidth, currentHeight);
+        const rawData = tctx.getImageData(0, 0, currentWidth, currentHeight).data;
+        const clearEnabled = document.getElementById('clearBaitToggle').checked;
+        const clearColor = document.querySelector('input[name="clearBaitColor"]:checked')?.value || 'black';
+        const createEnabled = document.getElementById('createBaitToggle').checked;
+        try {
+            baitImageData = processBaitImage(rawData, currentWidth, currentHeight, clearEnabled, clearColor, createEnabled);
+        } catch (err) {
+            console.error("Bait processing failed:", err);
+            baitImageData = null;
+        }
+        renderComposite();
+    }
+
+    // ─── Processing pipeline (double clear steps for BOTH modes) ───
+    function processPipeline() {
+        if (!originalImageData) return;
+        statusEl.classList.remove('hidden');
+        setTimeout(() => {
+            const v = parseInt(document.getElementById('exclSlider').value);
+            const exclMode = document.querySelector('input[name="exclMode"]:checked')?.value || 'black';
+
+            if (exclMode === 'black') {
+                // === ON BLACK (clear on each layer) ===
+                let t1 = applyClearColor(currentWidth, currentHeight, originalImageData.data, 255,255,255);
+                let t2 = applyBlend(t1, v,v,v, 'exclusion');
+                let t3 = applyClearColor(currentWidth, currentHeight, t2, 255,255,255);
+                topLayerProcessed = applyBlend(t3, 255,255,255, 'average');
+
+                let b1 = applyClearColor(currentWidth, currentHeight, originalImageData.data, 0,0,0);
+                let b2 = applyBlend(b1, v,v,v, 'exclusion');
+                let b3 = applyClearColor(currentWidth, currentHeight, b2, 0,0,0);
+                btmLayerProcessed = applyBlend(b3, 128,128,128, 'multiply');
+            } else {
+                // === ON WHITE (swapped + clear on each layer) ===
+                // Top layer: clear black → exclusion → clear black → average black
+                let t1 = applyClearColor(currentWidth, currentHeight, originalImageData.data, 0,0,0);
+                let t2 = applyBlend(t1, v,v,v, 'exclusion');
+                let t3 = applyClearColor(currentWidth, currentHeight, t2, 0,0,0);
+                topLayerProcessed = applyBlend(t3, 0,0,0, 'average');
+
+                // Bottom layer: clear white → exclusion → clear white → negation 128
+                let b1 = applyClearColor(currentWidth, currentHeight, originalImageData.data, 255,255,255);
+                let b2 = applyBlend(b1, v,v,v, 'exclusion');
+                let b3 = applyClearColor(currentWidth, currentHeight, b2, 255,255,255);
+                btmLayerProcessed = applyBlend(b3, 128,128,128, 'negation');
+            }
+
+            statusEl.classList.add('hidden');
+            renderComposite();
+        }, 10);
+    }
+
+    // ─── Render ───
+    function renderComposite() {
+        ctx.clearRect(0, 0, currentWidth, currentHeight);
+        const mode = document.querySelector('input[name="baitMode"]:checked')?.value || 'none';
+        const topA = parseInt(document.getElementById('topOpacity').value) / 100;
+        const btmA = parseInt(document.getElementById('btmOpacity').value) / 100;
+        const baitA = parseInt(document.getElementById('baitOpacity').value) / 100;
+        try {
+            if (mode === 'normal' && baitImageData && baitImageData.length === 4 * currentWidth * currentHeight) {
+                const temp = document.createElement('canvas');
+                temp.width = currentWidth; temp.height = currentHeight;
+                temp.getContext('2d').putImageData(new ImageData(baitImageData, currentWidth, currentHeight), 0, 0);
+                ctx.globalAlpha = baitA;
+                ctx.drawImage(temp, 0, 0);
+            }
+            if (btmA > 0 && btmLayerProcessed) {
+                const temp = document.createElement('canvas');
+                temp.width = currentWidth; temp.height = currentHeight;
+                temp.getContext('2d').putImageData(new ImageData(btmLayerProcessed, currentWidth, currentHeight), 0, 0);
+                ctx.globalAlpha = btmA;
+                ctx.drawImage(temp, 0, 0);
+            }
+            if (topA > 0 && topLayerProcessed) {
+                const temp = document.createElement('canvas');
+                temp.width = currentWidth; temp.height = currentHeight;
+                temp.getContext('2d').putImageData(new ImageData(topLayerProcessed, currentWidth, currentHeight), 0, 0);
+                ctx.globalAlpha = topA;
+                ctx.drawImage(temp, 0, 0);
+            }
+            if (mode === 'new' && baitImageData && baitImageData.length === 4 * currentWidth * currentHeight) {
+                const comp = document.createElement('canvas');
+                comp.width = currentWidth; comp.height = currentHeight;
+                const cctx = comp.getContext('2d');
+                if (btmA > 0 && btmLayerProcessed) {
+                    const t = document.createElement('canvas');
+                    t.width = currentWidth; t.height = currentHeight;
+                    t.getContext('2d').putImageData(new ImageData(btmLayerProcessed, currentWidth, currentHeight), 0, 0);
+                    cctx.globalAlpha = btmA;
+                    cctx.drawImage(t, 0, 0);
+                }
+                if (topA > 0 && topLayerProcessed) {
+                    const t = document.createElement('canvas');
+                    t.width = currentWidth; t.height = currentHeight;
+                    t.getContext('2d').putImageData(new ImageData(topLayerProcessed, currentWidth, currentHeight), 0, 0);
+                    cctx.globalAlpha = topA;
+                    cctx.drawImage(t, 0, 0);
+                }
+                const finalMain = cctx.getImageData(0,0,currentWidth,currentHeight).data;
+                const bg = document.querySelector('input[name="newBaitBg"]:checked')?.value || 'black';
+                const masked = createMaskedBait(finalMain, baitImageData, currentWidth, currentHeight, bg);
+                const temp = document.createElement('canvas');
+                temp.width = currentWidth; temp.height = currentHeight;
+                temp.getContext('2d').putImageData(new ImageData(masked, currentWidth, currentHeight), 0, 0);
+                ctx.globalAlpha = baitA;
+                ctx.drawImage(temp, 0, 0);
+            }
+            if (tagOriginalImage && currentWidth > 0 && currentHeight > 0) {
+                ctx.save();
+                const sizePct = parseInt(document.getElementById('tagSize').value) / 100;
+                const tagOpacity = parseInt(document.getElementById('tagOpacity').value) / 100;
+                ctx.globalAlpha = tagOpacity;
+                const origW = tagOriginalImage.width;
+                const origH = tagOriginalImage.height;
+                let scaledW = currentWidth * sizePct;
+                let scaleFactor = scaledW / origW;
+                let scaledH = origH * scaleFactor;
+                let drawX = 0;
+                let drawY = 0;
+                const isCustom = document.getElementById('customPosToggle').checked;
+                if (isCustom) {
+                    const xPct = parseInt(document.getElementById('tagX').value) / 100;
+                    const yPct = parseInt(document.getElementById('tagY').value) / 100;
+                    drawX = xPct * (currentWidth - scaledW);
+                    drawY = yPct * (currentHeight - scaledH);
+                } else {
+                    const preset = document.querySelector('input[name="tagPosition"]:checked')?.value || 'top-left';
+                    switch (preset) {
+                        case 'top-left': drawX = 0; drawY = 0; break;
+                        case 'top-right': drawX = currentWidth - scaledW; drawY = 0; break;
+                        case 'bottom-left': drawX = 0; drawY = currentHeight - scaledH; break;
+                        case 'bottom-right': drawX = currentWidth - scaledW; drawY = currentHeight - scaledH; break;
+                    }
+                }
+                drawX = Math.max(0, Math.min(drawX, currentWidth - scaledW));
+                drawY = Math.max(0, Math.min(drawY, currentHeight - scaledH));
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                ctx.drawImage(tagOriginalImage, drawX, drawY, scaledW, scaledH);
+                ctx.restore();
+            }
+        } catch (err) {
+            console.error("Render error:", err);
+            ctx.fillStyle = '#333';
+            ctx.fillRect(0, 0, currentWidth, currentHeight);
+            ctx.fillStyle = '#fff';
+            ctx.font = '20px Arial';
+            ctx.fillText('Render failed - try re-uploading', 20, currentHeight / 2);
+        }
+        ctx.globalAlpha = 1;
+
+        if (decalPreviewEnabled) {
+            decalCtx.imageSmoothingEnabled = true;
+            decalCtx.imageSmoothingQuality = 'high';
+            decalCtx.clearRect(0, 0, 300, 300);
+            decalCtx.drawImage(canvas, 0, 0, 300, 300);
+        }
+    }
+
+    // ─── Event listeners ───
+    document.getElementById('dropZoneMain').addEventListener('click', () => document.getElementById('imageInput').click());
+    document.getElementById('imageInput').addEventListener('change', e => {
+        if (e.target.files?.[0]) handleFile(e.target.files[0], 'main');
+    });
+    document.getElementById('dropZoneBait').addEventListener('click', () => document.getElementById('baitInput').click());
+    document.getElementById('baitInput').addEventListener('change', e => {
+        if (e.target.files?.[0]) handleFile(e.target.files[0], 'bait');
+    });
+    document.getElementById('dropZoneTag').addEventListener('click', () => document.getElementById('tagInput').click());
+    document.getElementById('tagInput').addEventListener('change', e => {
+        if (e.target.files?.[0]) handleFile(e.target.files[0], 'tag');
+    });
+
+    function setupDropZone(zoneId, colorClass) {
+        const zone = document.getElementById(zoneId);
+        zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add(colorClass); });
+        zone.addEventListener('dragleave', e => { zone.classList.remove(colorClass); });
+        zone.addEventListener('drop', e => {
+            e.preventDefault();
+            zone.classList.remove(colorClass);
+            if (e.dataTransfer?.files?.[0]) {
+                const mode = zoneId === 'dropZoneBait' ? 'bait' : zoneId === 'dropZoneTag' ? 'tag' : 'main';
+                handleFile(e.dataTransfer.files[0], mode);
+            }
+        });
+    }
+    setupDropZone('dropZoneMain', 'border-blue-500');
+    setupDropZone('dropZoneBait', 'border-purple-500');
+    setupDropZone('dropZoneTag', 'border-emerald-500');
+
+    document.addEventListener('paste', e => {
+        const file = [...(e.clipboardData?.items || [])].find(item => item.type.startsWith('image/'))?.getAsFile();
+        if (!file) return;
+        const active = document.activeElement;
+        if (active?.closest('#dropZoneTag')) handleFile(file, 'tag');
+        else if (active?.closest('#dropZoneBait')) handleFile(file, 'bait');
+        else handleFile(file, 'main');
+    });
+
+    document.getElementById('topOpacity').addEventListener('input', e => { document.getElementById('topVal').textContent = e.target.value + '%'; renderComposite(); });
+    document.getElementById('btmOpacity').addEventListener('input', e => { document.getElementById('btmVal').textContent = e.target.value + '%'; renderComposite(); });
+    document.getElementById('baitOpacity').addEventListener('input', e => { document.getElementById('baitOpacityVal').textContent = e.target.value + '%'; renderComposite(); });
+
+    document.getElementById('exclSlider').addEventListener('input', e => {
+        document.getElementById('exclValDisplay').textContent = `${e.target.value}, ${e.target.value}, ${e.target.value}`;
+        clearTimeout(window.procTimer);
+        window.procTimer = setTimeout(processPipeline, 150);
+    });
+
+    document.querySelectorAll('input[name="exclMode"]').forEach(radio => {
+        radio.addEventListener('change', processPipeline);
+    });
+
+    document.querySelectorAll('input[name="baitMode"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            document.getElementById('newBaitOptions').classList.toggle('hidden', radio.value !== 'new');
+            renderComposite();
+        });
+    });
+    document.querySelectorAll('input[name="newBaitBg"]').forEach(radio => radio.addEventListener('change', renderComposite));
+
+    document.getElementById('clearBaitToggle').addEventListener('change', e => {
+        document.getElementById('clearBaitOptions').classList.toggle('hidden', !e.target.checked);
+        if (baitOriginalImage) updateBaitData();
+    });
+    document.querySelectorAll('input[name="clearBaitColor"]').forEach(r => r.addEventListener('change', () => {
+        if (document.getElementById('clearBaitToggle').checked && baitOriginalImage) updateBaitData();
+    }));
+    document.getElementById('createBaitToggle').addEventListener('change', e => {
+        document.getElementById('createBaitNote').classList.toggle('hidden', !e.target.checked);
+        if (baitOriginalImage) updateBaitData();
+    });
+
+    document.getElementById('tagSize').addEventListener('input', e => { document.getElementById('tagSizeVal').textContent = e.target.value + '%'; renderComposite(); });
+    document.getElementById('tagOpacity').addEventListener('input', e => { document.getElementById('tagOpacityVal').textContent = e.target.value + '%'; renderComposite(); });
+    document.querySelectorAll('input[name="tagPosition"]').forEach(radio => {
+        radio.addEventListener('change', () => { if (!document.getElementById('customPosToggle').checked) renderComposite(); });
+    });
+    document.getElementById('customPosToggle').addEventListener('change', e => {
+        document.getElementById('customPosOptions').classList.toggle('hidden', !e.target.checked);
+        renderComposite();
+    });
+    document.getElementById('tagX').addEventListener('input', e => { document.getElementById('tagXVal').textContent = e.target.value + '%'; renderComposite(); });
+    document.getElementById('tagY').addEventListener('input', e => { document.getElementById('tagYVal').textContent = e.target.value + '%'; renderComposite(); });
+
+    const customSizeToggle = document.getElementById('customSizeToggle');
+    const customSizeOptions = document.getElementById('customSizeOptions');
+    const customWidthInput = document.getElementById('customWidth');
+    const customHeightInput = document.getElementById('customHeight');
+    customSizeToggle.addEventListener('change', () => {
+        customSizeOptions.classList.toggle('hidden', !customSizeToggle.checked);
+        if (mainSourceImage) applyMainImageSize();
+    });
+    function debounceSizeChange() {
+        clearTimeout(window.sizeDebounceTimer);
+        window.sizeDebounceTimer = setTimeout(() => {
+            if (customSizeToggle.checked && mainSourceImage) applyMainImageSize();
+        }, 350);
+    }
+    customWidthInput.addEventListener('input', debounceSizeChange);
+    customHeightInput.addEventListener('input', debounceSizeChange);
+
+    document.getElementById('decalPreviewToggle').addEventListener('change', function() {
+        decalPreviewEnabled = this.checked;
+        document.getElementById('fullPreviewBlock').classList.toggle('hidden', decalPreviewEnabled);
+        document.getElementById('decalPreviewBlock').classList.toggle('hidden', !decalPreviewEnabled);
+        if (decalPreviewEnabled) renderComposite();
+    });
+
+    window.setBg = function(preset) {
+        const wrappers = [
+            document.getElementById('canvasWrapper'),
+            document.querySelector('#decalPreviewBlock .canvas-container')
+        ];
+        wrappers.forEach(w => { if (w) w.className = `canvas-container bg-${preset}`; });
+        document.querySelectorAll('[data-preset]').forEach(btn => {
+            const active = btn.getAttribute('data-preset') === preset;
+            btn.classList.toggle('bg-gray-700', active);
+            btn.classList.toggle('text-white', active);
+            btn.classList.toggle('text-gray-300', !active);
+        });
+    };
+
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+        if (currentWidth === 0) return;
+        const link = document.createElement('a');
+        link.download = 'bypass_result.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    });
+
+    function makeExclusionEditable() {
+        const display = document.getElementById('exclValDisplay');
+        const slider = document.getElementById('exclSlider');
+        display.addEventListener('click', () => {
+            if (display.querySelector('input')) return;
+            const currentVal = slider.value;
+            display.innerHTML = `<input type="number" id="exclTempInput" min="0" max="255" value="${currentVal}" class="excl-edit-input">`;
+            const input = document.getElementById('exclTempInput');
+            input.focus(); input.select();
+            const finishEdit = (cancel = false) => {
+                let newVal = cancel ? currentVal : parseInt(input.value);
+                if (isNaN(newVal) || newVal < 0 || newVal > 255) newVal = currentVal;
+                slider.value = newVal;
+                slider.dispatchEvent(new Event('input'));
+                display.innerHTML = `${newVal}, ${newVal}, ${newVal}`;
+            };
+            input.addEventListener('blur', () => finishEdit(false), { once: true });
+            input.addEventListener('keydown', e => {
+                if (e.key === 'Enter') { e.preventDefault(); finishEdit(false); }
+                else if (e.key === 'Escape') { e.preventDefault(); finishEdit(true); }
+            }, { once: true });
+        });
+    }
+
+    // Initialize
+    setBg('transparent-grid');
+    makeExclusionEditable();
+    </script>
+</body>
+</html>
